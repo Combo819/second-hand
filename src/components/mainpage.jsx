@@ -41,7 +41,7 @@ class Mainpage extends Component {
       </span>
     );
     return (
-      <div>
+      <div >
         <Row
           style={{ marginTop: "30px" }}
           type="flex"

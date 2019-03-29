@@ -80,7 +80,9 @@ class Welcome extends React.Component {
                 <div>
                     {/* <Route exact path='/' component={Signin} />
                     <Route path='/signup' component={Signup} /> */}
-                    <Detail></Detail>
+                    {/* <Detail></Detail> */}
+                    {/* <Mainpage></Mainpage> */}
+                    <Profile></Profile>
                 </div>
               </Router>
             </div>
