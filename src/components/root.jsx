@@ -5,9 +5,10 @@ import { Router, Route } from "react-router-dom";
 import history from "./history";
 import Signin from "./signin";
 import Signup from "./signup";
-import Profile from './profile'
+import Profile from "./profile";
 import Mainpage from "./mainpage";
-import Detail from "./detail"
+import Detail from "./detail";
+import Edit from "./edit";
 const { Header, Content, Footer } = Layout;
 const axios = require("axios");
 class Welcome extends React.Component {
@@ -17,20 +18,29 @@ class Welcome extends React.Component {
       avatarSrc: "",
       username: "",
       dropdownDisable: true
+      
     };
     this.logoutItem = this.logoutItem.bind(this);
-    this.setProfile= this.setProfile.bind(this)
+    this.setProfile = this.setProfile.bind(this);
+    this.profileItem = this.profileItem.bind(this)
   }
-  componentDidMount() {
+  componentDidMount() {}
+  setProfile(nextState) {
+    this.setState(preState => nextState);
   }
-  setProfile(nextState){
-    this.setState(preState => (nextState));
-  }
-  logoutItem(e) {
+  logoutItem(e) {}
+  profileItem(){
+
   }
   render() {
     const menu = (
       <Menu>
+        <Menu.Item
+          onClick={e => this.profileItem(e)}
+          disabled={this.state.dropdownDisable}
+        >
+          profile
+        </Menu.Item>
         <Menu.Item
           onClick={e => this.logoutItem(e)}
           disabled={this.state.dropdownDisable}
@@ -47,9 +57,15 @@ class Welcome extends React.Component {
           >
             <Row type="flex" justify="space-between">
               <Col span={4}>
-                <img width={110} style={{
-                  marginTop:-26
-                }} src={'https://combo819.github.io/myPhotoBlog/images/homepage/logo.png'}></img>
+                <img
+                  width={110}
+                  style={{
+                    marginTop: -26
+                  }}
+                  src={
+                    "https://combo819.github.io/myPhotoBlog/images/homepage/logo.png"
+                  }
+                />
                 {/* <span style={{ fontSize: 30 }}>LOGO</span> */}
               </Col>
               <Col lg={6}>
@@ -78,11 +94,12 @@ class Welcome extends React.Component {
             <div style={{ background: "#fff", padding: 24, minHeight: 280 }}>
               <Router history={history}>
                 <div>
-                    {/* <Route exact path='/' component={Signin} />
-                    <Route path='/signup' component={Signup} /> */}
-                    {/* <Detail></Detail> */}
-                    {/* <Mainpage></Mainpage> */}
-                    <Profile></Profile>
+                  <Route exact path="/" component={Signin} />
+                  <Route path="/signup" component={Signup} />
+                  <Route path="/mainpage" component={Mainpage} />
+                  <Route path="/profile" component={Profile} />
+                  <Route path="/detail" component={Detail} />
+                  <Route path="/edit" component={Edit} />
                 </div>
               </Router>
             </div>

@@ -101,7 +101,7 @@ class Detail extends Component {
               <Col span={2}>
                 <Button>
                   <Icon type="left" />
-                  Back
+                  Mainpage
                 </Button>
               </Col>
               <Col span={4}>
