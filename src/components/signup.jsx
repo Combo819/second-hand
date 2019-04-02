@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { Row, Col, Input, Button, Divider, message } from "antd";
 import history from "./history";
+import { store, setUser, detailTitle,setUserAv } from './redux/index.js'
 const axios = require("axios");
+
 class Signup extends Component {
   constructor(props) {
     super(props);
@@ -26,6 +28,25 @@ class Signup extends Component {
     this.signUP = this.signUP.bind(this);
     this.emailOn = this.emailOn.bind(this)
   }
+  componentDidMount(){
+    axios({
+      url: "/check_signin",
+      withCredentials:true
+    })
+      .then(res => {
+        
+        if (res.data.signin) {
+
+          store.dispatch(setUser(res.data.name));
+          store.dispatch(setUserAv(res.data.avaSrc));
+          return true;
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        message.error("Error Network: Fail to check the sign in status");
+      });
+  }
   toLogin(e) {
     e.preventDefault();
     history.push("/");
@@ -48,6 +69,28 @@ class Signup extends Component {
     ) {
       message.error(this.state.formatContent.inconsist);
     } else {
+      const form = new FormData()
+      form.append('username',this.state.inputValue.username)
+      form.append('password',this.state.inputValue.password)
+      form.append('email',this.state.inputValue.email)
+      axios({
+        url:'/signup_new',
+        method:'post',
+        withCredentials:true,
+        data:form
+      }).then(res=>{
+        if (res.data.status) {
+          store.dispatch(setUser(res.data.name));
+          store.dispatch(setUserAv(res.data.avaSrc));
+          history.push("/mainpage");
+        } else {
+          message.error('cannot sign up')
+        }
+      }).then(err=>{
+        console.log(err);
+       // message.error('Error Network: Cannot Sign up')
+      })
+
     }
   }
   emailOn(event){

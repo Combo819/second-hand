@@ -9,32 +9,78 @@ import Profile from "./profile";
 import Mainpage from "./mainpage";
 import Detail from "./detail";
 import Edit from "./edit";
+import { store, setUser, detailTitle,setUserAv,setProfile } from './redux/index.js'
 const { Header, Content, Footer } = Layout;
 const axios = require("axios");
+
 class Welcome extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       avatarSrc: "",
-      username: "",
+      username: '',
       dropdownDisable: true
       
     };
     this.logoutItem = this.logoutItem.bind(this);
     this.setProfile = this.setProfile.bind(this);
-    this.profileItem = this.profileItem.bind(this)
+    this.profileItem = this.profileItem.bind(this);
+    this.toMain = this.toMain.bind(this);
+    this.listener = this.listener.bind(this);
+    this.logout = this.logout.bind(this)
   }
-  componentDidMount() {}
+  componentDidMount() {
+    store.subscribe(this.listener);
+    
+  }
+  listener(){
+    this.setState({
+      username:store.getState().user.username,
+      avatarSrc:store.getState().user.avatar,
+      dropdownDisable:!Boolean(store.getState().user.username)
+    })
+  }
+  logout(){
+
+    axios({
+      url:'/logout',
+      withCredentials:true
+    }).then(res=>{
+      if(res.data.logout){
+        store.dispatch(setUser(''))
+        store.dispatch(setUserAv(''))
+        history.push('/')
+      }else{
+        message.error('can not logout')
+      }
+    }).catch(err=>{
+      console.log(err);
+      message.error('error network: can not logout')
+    })
+  }
   setProfile(nextState) {
     this.setState(preState => nextState);
   }
+  toMain(){
+    history.push('/mainpage')
+  }
   logoutItem(e) {}
   profileItem(){
-
+    console.log(store.getState().user.username);
+    
+    store.dispatch(setProfile(store.getState().user.username))
+    console.log('root',store.getState());
+    history.push('/profile')
   }
   render() {
     const menu = (
       <Menu>
+        <Menu.Item
+          onClick={e => this.toMain(e)}
+          disabled={this.state.dropdownDisable }
+        >
+          mainpage
+        </Menu.Item>
         <Menu.Item
           onClick={e => this.profileItem(e)}
           disabled={this.state.dropdownDisable}
@@ -42,7 +88,7 @@ class Welcome extends React.Component {
           profile
         </Menu.Item>
         <Menu.Item
-          onClick={e => this.logoutItem(e)}
+          onClick={ this.logout}
           disabled={this.state.dropdownDisable}
         >
           log out
@@ -84,7 +130,8 @@ class Welcome extends React.Component {
                 )}
                 <Dropdown overlay={menu}>
                   <span style={{ fontSize: 22 }}>
-                    {this.state.username || "Not Login"} <Icon type="down" />
+                    {this.state.username || "Not Login"} 
+                    <Icon type="down" />
                   </span>
                 </Dropdown>
               </Col>

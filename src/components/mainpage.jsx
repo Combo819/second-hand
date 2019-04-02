@@ -13,9 +13,14 @@ import {
   Icon,
   Tag
 } from "antd";
+import history from './history'
+import axios from "axios";
+import { store, setUser, detailTitle,setUserAv,setEdit } from './redux/index.js'
 const Search = Input.Search;
 const { Title } = Typography;
 const _ = require("lodash");
+
+
 class Mainpage extends Component {
   constructor(props) {
     super(props);
@@ -25,7 +30,9 @@ class Mainpage extends Component {
       open: true,
       close: true,
       search: "",
-      postOrigin: [
+      postOrigin:[],
+      postSelected:[]
+      /* postOrigin: [
         {
           title: "as we can",
           user: "billy herrington",
@@ -124,13 +131,64 @@ class Mainpage extends Component {
           image:
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSd3RWAZiYjGHj4Hv_RjtpqL64lpHs4-qaLshz0Er7IpeV8S4qdrw"
         }
-      ],
+      ], */
     };
     this.switchChange = this.switchChange.bind(this);
     this.clearAll = this.clearAll.bind(this);
-    this.searchChange = this.searchChange.bind(this)
-    this.applyFilter = this.applyFilter.bind(this)
+    this.searchChange = this.searchChange.bind(this);
+    this.applyFilter = this.applyFilter.bind(this);
+    this.newPost = this.newPost.bind(this)
     //use _.takeRightWhile to generate filtered posts
+  }
+  componentDidMount(){
+
+    axios({
+      url:'/check_signin',
+      withCredentials:true
+    }).then(res=>{
+      console.log(res.data.signin);
+      
+      if(res.data.signin){
+
+        store.dispatch(setUser(res.data.name))
+        store.dispatch(setUserAv(res.data.avaSrc))
+      }else{
+        message.error('you have logged out')
+        history.push('/')
+        return false
+      }
+    }).catch(err=>{
+      console.log(err);
+      message.error('Error Network: Fail to check the sign in status')
+      history.push('/')
+      return false
+    })
+
+    axios({
+      url:'/get_all_list'
+    }).then(res=>{
+      if(res.data.status){
+        this.setState({
+          postOrigin:res.data.posts,
+          postSelected:res.data.posts
+        })
+      }else{
+        message.error('can not get posts')
+      }
+    }).catch(err=>{
+      console.log(err);
+      message.error('Error Network: can not get posts')
+    })
+  }
+  newPost(){
+    store.dispatch(setEdit(''))
+    history.push('/edit')
+  }
+  titleClick(e,postId){
+    
+    store.dispatch(detailTitle(postId))
+    
+    history.push('/detail')
   }
   switchChange(checked, type) {
     // I dont know why the call back doesn't work
@@ -325,7 +383,7 @@ class Mainpage extends Component {
           align="top"
         >
           <Col offset={3}>
-            <Button size="large">
+            <Button onClick={this.newPost} size="large">
               <Icon type="plus" />
               New Post
             </Button>
@@ -355,7 +413,7 @@ class Mainpage extends Component {
                 >
                   <List.Item.Meta
                     avatar={<Avatar src={item.avatar} />}
-                    title={<Title level={3}>{item.title}</Title>}
+                    title={<Title style={{cursor:'pointer'}} onClick={e=>this.titleClick(e,item.postId)} level={3}>{item.title}</Title>}
                     description={
                       <div>
                         {item.wantRent ? (

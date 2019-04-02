@@ -8,7 +8,7 @@ POST  `{'email':email,'password':password}`
 return `jsonfiy({'username':username,'avatar':url})`
 ### 3. `/get_all_list`
 GET   
-return `[{ 'type':string,'title':string,'timestamp':string,'description':string,'owner':string,'email':string,'photo':[string,],'statue':boolean,'avatar':string,'id':string },]`
+return `[{ 'type':string,'title':string,'timestamp':string,'content':string,'owner':string,'email':string,'photo':[string,],'openClose':boolean,'avatar':string,'id':string,'wantRent':Boolean},]`
 ### 4. `/contact`  
 POST  `{'content':string,'target_email':string}`
 return `{'status':boolean}`
