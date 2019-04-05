@@ -15,7 +15,7 @@ import {
 } from "antd";
 import history from './history'
 import axios from "axios";
-import { store, setUser, detailTitle,setUserAv,setEdit } from './redux/index.js'
+import { store, setUser, detailTitle,setUserAv,setEdit,setNewPost } from './redux/index.js'
 const Search = Input.Search;
 const { Title } = Typography;
 const _ = require("lodash");
@@ -146,7 +146,6 @@ class Mainpage extends Component {
       url:'/check_signin',
       withCredentials:true
     }).then(res=>{
-      console.log(res.data.signin);
       
       if(res.data.signin){
 
@@ -182,12 +181,13 @@ class Mainpage extends Component {
   }
   newPost(){
     store.dispatch(setEdit(''))
+    store.dispatch(setNewPost(true))
     history.push('/edit')
   }
   titleClick(e,postId){
     
     store.dispatch(detailTitle(postId))
-    
+    store.dispatch(setNewPost(false))
     history.push('/detail')
   }
   switchChange(checked, type) {
@@ -250,7 +250,6 @@ class Mainpage extends Component {
     
   }
   clearAll() {
-    console.log('clear all');
     
     this.setState({
       want: true,

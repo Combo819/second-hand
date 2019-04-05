@@ -3,7 +3,7 @@ import { Row, Col, Input, Button, Divider, message } from "antd";
 import history from "./history";
 import { store, setUser, detailTitle, setUserAv } from "./redux/index.js";
 const axios = require("axios");
-axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.baseURL = "https://zepo8dwajh.execute-api.us-east-1.amazonaws.com/dev";
 class Signin extends Component {
   constructor(props) {
     super(props);
@@ -27,7 +27,6 @@ class Signin extends Component {
       withCredentials:true
     })
       .then(res => {
-        console.log('signin page',res);
         
         if (res.data.signin) {
           history.push("/mainpage");
@@ -59,7 +58,6 @@ class Signin extends Component {
         withCredentials:true
       })
         .then(res => {
-          console.log(res.data);
           if (res.data.login) {
             store.dispatch(setUser(res.data.name));
             store.dispatch(setUserAv(res.data.avaSrc));

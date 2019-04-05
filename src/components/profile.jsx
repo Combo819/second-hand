@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Row, Col, Avatar, Typography, Button, List, Upload, message } from "antd";
 import history from "./history";
 import axios from "axios";
-import { store, setUser, detailTitle,setUserAv } from './redux/index.js'
+import { store, setUser, detailTitle,setUserAv ,setNewPost} from './redux/index.js'
 const { Title } = Typography;
 
 class Profile extends Component {
@@ -53,7 +53,9 @@ class Profile extends Component {
       message.error('Error Network: fail to fetch profile')
     })
   }
-  postClick() {
+  postClick(postId) {
+    store.dispatch(detailTitle(postId))
+    store.dispatch(setNewPost(false))
     history.push("/detail");
   }
   render() {
@@ -70,7 +72,7 @@ class Profile extends Component {
           <Col span={20}>
             <Avatar
               src={
-                "https://ch.mathworks.com/matlabcentral/profiles/12606575_1529306722027.jpg"
+                this.state.avatar
               }
               shape="square"
               size={100}
@@ -88,12 +90,12 @@ class Profile extends Component {
         </Row> */}
         <Row style={{ marginTop: "35px" }} type="flex" justify="center">
           <Col span={20}>
-            <Title level={4}>User:&nbsp; Van Darkhomle</Title>
+            <Title level={4}>User:&nbsp; {this.state.owner}</Title>
           </Col>
         </Row>
         <Row style={{ marginTop: "20px" }} type="flex" justify="center">
           <Col span={20}>
-            <Title level={4}>Email:&nbsp; 1234567@mail.utoronto.ca</Title>
+            <Title level={4}>Email:&nbsp; {this.state.email}</Title>
           </Col>
         </Row>
         <Row
@@ -114,7 +116,7 @@ class Profile extends Component {
               renderItem={item => (
                 <List.Item
                   style={{ cursor: "pointer" }}
-                  onClick={this.postClick}
+                  onClick={()=>this.postClick(item.postId)}
                 >
                   {item.title}
                 </List.Item>

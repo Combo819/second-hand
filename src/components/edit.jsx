@@ -27,10 +27,12 @@ const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 const Option = Select.Option;
 const _ = require("lodash");
+const uuidv1 = require('uuid/v1');
 class Edit extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      random:uuidv1(),
       title: "",
       type: "want",
       status: "open",
@@ -63,12 +65,14 @@ class Edit extends Component {
     this.cancelClick = this.cancelClick.bind(this);
     this.contentChange = this.contentChange.bind(this);
     this.titleChange = this.titleChange.bind(this);
-    this.submit =this.submit.bind(this)
+    this.submit =this.submit.bind(this);
+    this.uploadImage = this.uploadImage.bind(this);
   }
   cancelClick() {
     history.push("/mainpage");
   }
   componentDidMount() {
+   
     axios({
       url: "/check_signin",
       withCredentials: true
@@ -89,7 +93,12 @@ class Edit extends Component {
         history.push("/");
         return false;
       });
-    console.log(store.getState().edit);
+      console.log('store.getState().newPost',store.getState().newPost);
+      
+      if(!store.getState().postId&&!store.getState().newPost){
+        history.push('/mainpage')
+        return false
+      }
 
     if (store.getState().edit) {
       axios({
@@ -127,14 +136,26 @@ class Edit extends Component {
     }
   }
   submit(){
+      const newPhotos =[] ;
+      _.forEach(this.state.fileList,(file)=>{
+        if(_.has(file,'percent')&&file.percent===0){
+          newPhotos.push(file.originFileObj)
+        }
+      })
       const form = new FormData()
       form.append('title',this.state.title)
       form.append('content',this.state.content)
       form.append('type',this.state.type)
       form.append('status',this.state.status)
       form.append('postId',store.getState().edit)
+      _.forEach(newPhotos,(photo,index)=>{
+        form.append('file'+index,photo)
+      })
       axios({
-          url:'/edit_submit',
+        headers: {
+          'Content-Type': 'multipart/form-data'
+      },
+          url:store.getState().edit?'/edit_submit':'/new_submit',
           method:'POST',
           withCredentials:true,
           data:form
@@ -149,6 +170,9 @@ class Edit extends Component {
           console.log(err);
           message.error('Error Network: Fail to submit')
       })
+  }
+  uploadImage(e){
+
   }
   typeChange(value) {
     this.setState({
@@ -174,11 +198,15 @@ class Edit extends Component {
     });
   }
   imageChange({ fileList }) {
-    console.log("filelist", fileList);
-    console.log("state.filelist", this.state.fileList);
+
+
+    if(fileList.length>=1&&fileList[fileList.length-1].status=='uploading'){
+      fileList[fileList.length-1].status = 'done'
+      this.state.fileList.push(fileList[fileList.length-1])
+    }
 
     const diffArray = _.difference(this.state.fileList, fileList);
-    console.log(diffArray);
+
     
     if (!diffArray.length) {
       this.setState({
@@ -351,6 +379,7 @@ class Edit extends Component {
                   fileList={fileList}
                   onPreview={this.imagePreview}
                   onChange={this.imageChange}
+                  customRequest={e=>this.uploadImage(e)}
                 >
                   {fileList.length >= 8 ? null : uploadButton}
                 </Upload>

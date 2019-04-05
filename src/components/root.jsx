@@ -39,6 +39,7 @@ class Welcome extends React.Component {
       avatarSrc:store.getState().user.avatar,
       dropdownDisable:!Boolean(store.getState().user.username)
     })
+    
   }
   logout(){
 
@@ -66,10 +67,10 @@ class Welcome extends React.Component {
   }
   logoutItem(e) {}
   profileItem(){
-    console.log(store.getState().user.username);
+
     
     store.dispatch(setProfile(store.getState().user.username))
-    console.log('root',store.getState());
+
     history.push('/profile')
   }
   render() {

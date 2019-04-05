@@ -4,6 +4,7 @@ import user from './user.js'
 import postId from './detail'
 import profile from './profile'
 import edit from './edit'
+import newPost from './new_post'
 function setUser(username) {
     return {
       type: 'SET_USER',
@@ -41,13 +42,22 @@ function setEdit(postId){
       };
 }
 
+function setNewPost(newP){
+  
+  return {
+      type: 'newPost',
+      newPost:newP
+    };
+}
+
   const reducer = combineReducers({
     user,
     postId,
     profile,
-    edit
+    edit,
+    newPost
   })
 
 const store = createStore(reducer);
 //store.subscribe(() => console.log(store.getState()));
-export { store, setUser,detailTitle,setUserAv,setProfile,setEdit };
+export { store, setUser,detailTitle,setUserAv,setProfile,setEdit,setNewPost };

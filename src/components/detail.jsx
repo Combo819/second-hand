@@ -67,7 +67,8 @@ class Detail extends Component {
       content: "",
       postId: "",
       emailContent:'',
-      user: store.getState().user.username
+      user: store.getState().user.username,
+      newComments:''
     };
     this.messageClick = this.messageClick.bind(this);
     this.messageCancel = this.messageCancel.bind(this);
@@ -75,7 +76,8 @@ class Detail extends Component {
     this.deleteConfirm = this.deleteConfirm.bind(this);
     this.backMain = this.backMain.bind(this);
     this.listener = this.listener.bind(this);
-    this.emailChange = this.emailChange.bind(this)
+    this.emailChange = this.emailChange.bind(this);
+    this.commentChange = this.commentChange.bind(this)
   }
   componentDidMount() {
     axios({
@@ -98,8 +100,13 @@ class Detail extends Component {
       return false
     })
 
-    store.subscribe(this.listener);
+    
 
+    store.subscribe(this.listener);
+    if(!store.getState().postId){
+      history.push('/mainpage')
+      return false
+    }
     
     axios({
       url: "/get_detail",
@@ -109,6 +116,8 @@ class Detail extends Component {
       }
     })
       .then(res => {
+
+        
         if (res.data.status) {
           const images = _.map(res.data.detail.images, function(image, key) {
             return { index: key, url: image };
@@ -150,6 +159,12 @@ class Detail extends Component {
       user:store.getState().user.username
     })
   }
+  commentChange(e){
+    const value = e.target.value
+    this.setState({
+      newComments:value
+    })
+  }
   emailChange(e){
    const value = e.target.value
     this.setState({
@@ -160,14 +175,13 @@ class Detail extends Component {
     history.push("/mainpage");
   }
   editClick() {
-    console.log(this.state.postId);
     
     store.dispatch(setEdit(this.state.postId))
-    console.log(store.getState());
+
     history.push("/edit");
   }
   messageClick() {
-    console.log("messageClick");
+
 
     this.setState({
       messageVisible: true
@@ -177,6 +191,38 @@ class Detail extends Component {
     this.setState({
       messageVisible: false
     });
+  }
+  submitComment(){
+    const form = new FormData()
+    form.append('comment',this.state.newComments)
+    form.append('postId',this.state.postId)
+    axios({
+      url:'/add_comment',
+      method:'post',
+      data:form
+    }).then(res=>{
+
+      
+      if(res.data.status){
+        message.success('comment added')
+        const nextComment = this.state.comments
+        nextComment.push({
+          user:this.state.user,
+          avatar:store.getState().user.avatar,
+          content:this.state.newComments
+        })
+        
+        this.setState({
+          comments:nextComment
+        })
+      }else{
+        message.error('can not add a comment')
+      }
+    }).catch(err=>{
+      message.error('Error Network: Fail to add a comment')
+    })
+
+    
   }
 
   messageConfirm() {
@@ -211,7 +257,24 @@ class Detail extends Component {
     })
   }
   deleteConfirm() {
-    history.push("/mainpage");
+    const form = new FormData()
+    form.append('postId',this.state.postId)
+    axios({
+      url:'/delete_post',
+      method:'post',
+      data:form
+    }).then(res=>{
+      if(res.data.status){
+        message.success('The post is deleted')
+        history.push("/mainpage");
+      }
+      else{
+        message.error('The post can not be deleted')
+      }
+    }).catch(err=>{
+      message.error('Error Network: Fail to delete the post')
+    })
+    
   }
   render() {
     return (
@@ -317,8 +380,8 @@ class Detail extends Component {
         </Row>
         <Row type="flex" justify="center" style={{ marginTop: "5px" }}>
           <Col span={20}>
-            <Tag color="green">open</Tag>
-            <Tag color="blue">want</Tag>
+            <Tag color="green">{this.state.openClose?'open':'close'}</Tag>
+            <Tag color="blue">{this.state.wantRent?'want':'rent'}</Tag>
           </Col>
         </Row>
 
@@ -367,14 +430,14 @@ class Detail extends Component {
         </Row>
         <Row style={{ marginTop: "25px" }} type="flex" justify="center">
           <Col span={16}>
-            <TextArea style={{ resize: "none" }} autosize={{ minRows: 6 }} />
+            <TextArea onChange={e=>this.commentChange(e)} value={this.state.newComments} style={{ resize: "none" }} autosize={{ minRows: 6 }} />
           </Col>
         </Row>
         <Row style={{ marginTop: "25px" }} type="flex" justify="center">
           <Col span={16}>
             <Row type="flex" justify="end">
               <Col>
-                <Button>Submit</Button>
+                <Button onClick={this.submitComment.bind(this)}>Submit</Button>
               </Col>
             </Row>
           </Col>

@@ -84,11 +84,11 @@ class Signup extends Component {
           store.dispatch(setUserAv(res.data.avaSrc));
           history.push("/mainpage");
         } else {
-          message.error('cannot sign up')
+          message.error(res.data.msg||'can not sign up')
         }
       }).then(err=>{
         console.log(err);
-       // message.error('Error Network: Cannot Sign up')
+      // message.error('Error Network: Cannot Sign up')
       })
 
     }
@@ -122,7 +122,7 @@ class Signup extends Component {
         password: targetValue
       }
     }));
-    console.log(this.state.inputValue);
+
   }
   coPasswordOn(event) {
     //must assign a const to preserve the value
